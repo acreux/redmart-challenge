@@ -46,13 +46,20 @@ class Map(object):
         pos_elevation = self.ground_map_flattened[pos].elevation
         for direction in [self.north, self.south, self.west, self.east]:
             if direction(pos) and direction(pos).elevation > pos_elevation:
-                higher_neighbors.append(self.ground_map_flattened[pos])
+                higher_neighbors.append(direction(pos))
         return higher_neighbors
 
     def get_max_score_neighbors(self, pos):
         higher_neighbors = self.get_all_higher_neighbors(pos)
+        for i in higher_neighbors:
+            print("i")
+            print(i)
         if higher_neighbors:
-            best_neighbor = max(higher_neighbors, key=lambda x: x.path_length)
+            # We take the longest path
+            # If equal, we take the longest drop (current drop + elevation)
+            best_neighbor = max(higher_neighbors, key=lambda x: (x.path_length, x.path_drop+x.elevation))
+            print(pos)
+            print(best_neighbor)
             return best_neighbor
         else:
             return None
@@ -60,23 +67,28 @@ class Map(object):
     def update_pos(self, pos):
         best_neighbor = self.get_max_score_neighbors(pos)
         if not best_neighbor:   # Highest point among its neighbour
-            return
+            return False
 
         point = self.ground_map_flattened[pos]
 
         point.path_length = best_neighbor.path_length + 1
         point.path_drop = best_neighbor.path_drop + (best_neighbor.elevation - point.elevation)
+        return True
 
     def solve(self):
-        for ind, _ in enumerate(self.ground_map_flattened):
-            self.update_pos(ind)
+        finished = False
+        for i in range(10):
+        # while(not finished):
+            finished = True
+            for ind, _ in enumerate(self.ground_map_flattened):
+                self.update_pos(ind)
 
     def __str__(self):
         return "\n".join(i.__str__() for i in self.ground_map_flattened)
 
 class Point(object):
 
-    def __init__(self, pos, elevation, path_length=0, path_drop=0):
+    def __init__(self, pos, elevation, path_length=1, path_drop=0):
         self.pos = pos
         self.elevation = elevation
         self.path_length = path_length
@@ -91,22 +103,24 @@ class Point(object):
             "path_drop:" + str(self.path_drop)]) + "\n"
 
 
-# 1 2 3
-# 4 5 6
-# 7 8 9
-l = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+# 4 8 7 3
+# 2 5 9 3
+# 6 3 2 5
+# 4 4 1 6
+l = [[4,8,7,3], [2,5,9,3], [6,3,2,5], [4,4,1,6]]
 m = Map(l)
-print(m.north(4))
-print(m.south(4))
-print(m.west(4))
-print(m.east(4))
-print(m.north(3))
-print(m.south(3))
-print(m.west(3))
-print(m.east(3))
+# print(m.north(4))
+# print(m.south(4))
+# print(m.west(4))
+# print(m.east(4))
+# print(m.north(3))
+# print(m.south(3))
+# print(m.west(3))
+# print(m.east(3))
 
 
 m.solve()
+print "solved"
 print(m)
 
 
