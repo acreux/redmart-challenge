@@ -44,31 +44,35 @@ class Map(object):
     def get_all_higher_neighbors(self, pos):
         higher_neighbors = []
         pos_elevation = self.ground_map_flattened[pos].elevation
-        if north(pos) and north(pos).elevation > value:
-            higher_neighbors.append(self.ground_map_flattened[pos])
-        if south(pos) and south(pos).elevation > value:
-            higher_neighbors.append(self.ground_map_flattened[pos])
-        if west(pos) and west(pos).elevation > value:
-            higher_neighbors.append(self.ground_map_flattened[pos])
-        if east(pos) and east(pos).elevation > value:
-            higher_neighbors.append(self.ground_map_flattened[pos])
+        for direction in [self.north, self.south, self.west, self.east]:
+            if direction(pos) and direction(pos).elevation > pos_elevation:
+                higher_neighbors.append(self.ground_map_flattened[pos])
         return higher_neighbors
 
     def get_max_score_neighbors(self, pos):
         higher_neighbors = self.get_all_higher_neighbors(pos)
-        best_neighbor = max(higher_neighbors, key=lambda x: x.path_length)
-        return best_neighbor
+        if higher_neighbors:
+            best_neighbor = max(higher_neighbors, key=lambda x: x.path_length)
+            return best_neighbor
+        else:
+            return None
 
     def update_pos(self, pos):
-        point = self.ground_map_flattened[pos]
         best_neighbor = self.get_max_score_neighbors(pos)
+        if not best_neighbor:   # Highest point among its neighbour
+            return
+
+        point = self.ground_map_flattened[pos]
 
         point.path_length = best_neighbor.path_length + 1
         point.path_drop = best_neighbor.path_drop + (best_neighbor.elevation - point.elevation)
 
     def solve(self):
-        for i in self.ground_map_flattened:
-            update_pos(i)
+        for ind, _ in enumerate(self.ground_map_flattened):
+            self.update_pos(ind)
+
+    def __str__(self):
+        return "\n".join(i.__str__() for i in self.ground_map_flattened)
 
 class Point(object):
 
@@ -100,6 +104,11 @@ print(m.north(3))
 print(m.south(3))
 print(m.west(3))
 print(m.east(3))
+
+
+m.solve()
+print(m)
+
 
 read_input("map.txt")
 
