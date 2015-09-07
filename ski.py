@@ -42,6 +42,9 @@ class Map(object):
         return None
     
     def get_all_higher_neighbors(self, pos):
+        """
+        Get neighbours of position `pos`
+        """
         higher_neighbors = []
         pos_elevation = self.ground_map_flattened[pos].elevation
         for direction in [self.north, self.south, self.west, self.east]:
@@ -50,13 +53,22 @@ class Map(object):
         return higher_neighbors
 
     def graph(self):
+        """
+        Create a graph so that we do not need to retrieve the neighbours of 
+        each position every time
+
+        Useless
+        """
         self.all_points = {}
         for ind, _ in enumerate(self.ground_map_flattened):
             self.all_points[ind] = self.get_all_higher_neighbors(ind)
 
     def get_max_score_neighbors(self, pos):
-        # higher_neighbors = self.get_all_higher_neighbors(pos)
-        higher_neighbors = self.all_points[pos]
+        """
+        Get the neighbour with the highest get_max_score_neighbors
+        """
+        higher_neighbors = self.get_all_higher_neighbors(pos)
+        # higher_neighbors = self.all_points[pos]
         if higher_neighbors:
             # We take the longest path
             # If equal, we take the longest drop (current drop + elevation)
@@ -66,6 +78,9 @@ class Map(object):
             return None
 
     def update_pos(self, pos):
+        """
+        Given the neighbours, recompute the score of the given position
+        """
         best_neighbor = self.get_max_score_neighbors(pos)
         if not best_neighbor:   # Highest point among its neighbour
             return False
@@ -77,6 +92,11 @@ class Map(object):
         return True
 
     def solve(self):
+        """
+        Compute the graph and then loop on all points to recompute the scores
+
+        Too slow
+        """
         self.graph()
         print("graph done")
         for i in range(self.row_count):
@@ -85,8 +105,11 @@ class Map(object):
                 self.update_pos(ind)
 
     def solve2(self):
-        self.graph()
-        print("graph done")
+        """
+        Start at the highest points, and then going down,
+        We only need to compute every point once
+        """
+        # Max number is 1500
         max_number = 1500
         for number in range(1500, -1, -1):
             points = [p.pos for p in self.ground_map_flattened if p.elevation==number]
@@ -94,15 +117,14 @@ class Map(object):
                 self.update_pos(pos)
             print number
 
-
     def get_longest_path(self):
         path = max(self.ground_map_flattened, key=lambda x: (x.path_length, x.path_drop))
         print(path)
         return path
 
-
     def __str__(self):
         return "\n".join(i.__str__() for i in self.ground_map_flattened)
+
 
 class Point(object):
 
@@ -121,27 +143,30 @@ class Point(object):
             "path_drop:" + str(self.path_drop)]) + "\n"
 
 
-# 4 8 7 3
-# 2 5 9 3
-# 6 3 2 5
-# 4 4 1 6
-# l = [[4,8,7,3], [2,5,9,3], [6,3,2,5], [4,4,1,6]]
-# m = Map(l)
-# print(m.north(4))
-# print(m.south(4))
-# print(m.west(4))
-# print(m.east(4))
-# print(m.north(3))
-# print(m.south(3))
-# print(m.west(3))
-# print(m.east(3))
+if __name__ == "__main__":
+    # 4 8 7 3
+    # 2 5 9 3
+    # 6 3 2 5
+    # 4 4 1 6
+    # l = [[4,8,7,3], [2,5,9,3], [6,3,2,5], [4,4,1,6]]
+    # m = Map(l)
+    # print(m.north(4))
+    # print(m.south(4))
+    # print(m.west(4))
+    # print(m.east(4))
+    # print(m.north(3))
+    # print(m.south(3))
+    # print(m.west(3))
+    # print(m.east(3))
 
-# m = Map(read_input("map.txt"))
+    m = Map(read_input("map.txt"))
 
-m.solve2()
-m.get_longest_path()
-print "solved"
-# print(m)
+    m.solve2()
+    m.get_longest_path()
+    print "solved"
 
-
+    # pos:689607
+    # elevation:0
+    # path_length:15
+    # path_drop:1422
 
