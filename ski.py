@@ -49,9 +49,14 @@ class Map(object):
                 higher_neighbors.append(direction(pos))
         return higher_neighbors
 
+    def graph(self):
+        self.all_points = {}
+        for ind, _ in enumerate(self.ground_map_flattened):
+            self.all_points[ind] = self.get_all_higher_neighbors(ind)
 
     def get_max_score_neighbors(self, pos):
-        higher_neighbors = self.get_all_higher_neighbors(pos)
+        # higher_neighbors = self.get_all_higher_neighbors(pos)
+        higher_neighbors = self.all_points[pos]
         if higher_neighbors:
             # We take the longest path
             # If equal, we take the longest drop (current drop + elevation)
@@ -72,10 +77,23 @@ class Map(object):
         return True
 
     def solve(self):
+        self.graph()
+        print("graph done")
         for i in range(self.row_count):
-
+            print(i)
             for ind, _ in enumerate(self.ground_map_flattened):
                 self.update_pos(ind)
+
+    def solve2(self):
+        self.graph()
+        print("graph done")
+        max_number = 1500
+        for number in range(1500, -1, -1):
+            points = [p.pos for p in self.ground_map_flattened if p.elevation==number]
+            for pos in points:
+                self.update_pos(pos)
+            print number
+
 
     def get_longest_path(self):
         path = max(self.ground_map_flattened, key=lambda x: (x.path_length, x.path_drop))
@@ -118,9 +136,9 @@ class Point(object):
 # print(m.west(3))
 # print(m.east(3))
 
-m = Map(read_input("map.txt"))
+# m = Map(read_input("map.txt"))
 
-m.solve()
+m.solve2()
 m.get_longest_path()
 print "solved"
 # print(m)
