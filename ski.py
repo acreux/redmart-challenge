@@ -9,8 +9,8 @@ def read_input(file_name):
 
         rows_count = size_grid[0]
         ski_map = [r.strip().split(" ") for r in f_input]
-        ski_map_flatten = [i for i in itertools.chain(*ski_map)]
-        print(len(ski_map_flatten))
+        print(len(ski_map))
+        return ski_map
 
 
 class Map(object):
@@ -49,17 +49,13 @@ class Map(object):
                 higher_neighbors.append(direction(pos))
         return higher_neighbors
 
+
     def get_max_score_neighbors(self, pos):
         higher_neighbors = self.get_all_higher_neighbors(pos)
-        for i in higher_neighbors:
-            print("i")
-            print(i)
         if higher_neighbors:
             # We take the longest path
             # If equal, we take the longest drop (current drop + elevation)
             best_neighbor = max(higher_neighbors, key=lambda x: (x.path_length, x.path_drop+x.elevation))
-            print(pos)
-            print(best_neighbor)
             return best_neighbor
         else:
             return None
@@ -76,12 +72,16 @@ class Map(object):
         return True
 
     def solve(self):
-        finished = False
-        for i in range(10):
-        # while(not finished):
-            finished = True
+        for i in range(self.row_count):
+
             for ind, _ in enumerate(self.ground_map_flattened):
                 self.update_pos(ind)
+
+    def get_longest_path(self):
+        path = max(self.ground_map_flattened, key=lambda x: (x.path_length, x.path_drop))
+        print(path)
+        return path
+
 
     def __str__(self):
         return "\n".join(i.__str__() for i in self.ground_map_flattened)
@@ -107,8 +107,8 @@ class Point(object):
 # 2 5 9 3
 # 6 3 2 5
 # 4 4 1 6
-l = [[4,8,7,3], [2,5,9,3], [6,3,2,5], [4,4,1,6]]
-m = Map(l)
+# l = [[4,8,7,3], [2,5,9,3], [6,3,2,5], [4,4,1,6]]
+# m = Map(l)
 # print(m.north(4))
 # print(m.south(4))
 # print(m.west(4))
@@ -118,11 +118,12 @@ m = Map(l)
 # print(m.west(3))
 # print(m.east(3))
 
+m = Map(read_input("map.txt"))
 
 m.solve()
+m.get_longest_path()
 print "solved"
-print(m)
+# print(m)
 
 
-read_input("map.txt")
 
